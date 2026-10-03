@@ -1,0 +1,19 @@
+{
+  "name": "forma-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "FORMA — бэкенд ленты, сторис и профилей (Cloudflare Worker + D1)",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:create": "wrangler d1 create forma-db",
+    "db:init": "wrangler d1 execute forma-db --file=./schema.sql",
+    "db:init:local": "wrangler d1 execute forma-db --local --file=./schema.sql",
+    "check": "node --check src/index.js",
+    "test": "node test/local.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^3.90.0"
+  }
+}

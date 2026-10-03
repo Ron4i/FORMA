@@ -1,0 +1,24 @@
+{
+  "name": "FORMA — Сфоткай еду. Похудей на результат.",
+  "short_name": "FORMA",
+  "description": "ИИ считает калории и БЖУ по фото, строит план похудения, ведёт ленту историй похудения. Бесплатно.",
+  "lang": "ru",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#070b12",
+  "theme_color": "#070b12",
+  "categories": ["health", "fitness", "lifestyle"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Сканировать еду", "short_name": "Скан", "url": "./#/scan" },
+    { "name": "Лента историй", "short_name": "Лента", "url": "./#/feed" },
+    { "name": "ИИ-тренер", "short_name": "Тренер", "url": "./#/coach" }
+  ]
+}

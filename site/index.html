@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FORMA — сфоткай еду, похудей на результат. Бесплатно.</title>
+<meta name="description" content="FORMA — бесплатное фитнес-приложение: ИИ считает калории, белки, жиры и углеводы по фото еды, строит план похудения и показывает реальные истории людей. Без подписки." />
+<meta property="og:title" content="FORMA — бесплатный ИИ-сканер еды и план похудения" />
+<meta property="og:description" content="Сфоткай тарелку — получи БЖУ. Составь план похудения с ИИ-коучем. Смотри истории реальных людей." />
+<meta property="og:type" content="website" />
+<link rel="icon" href="../icons/icon-192.png" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+
+<header class="nav" id="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="#top"><span class="mark">F</span> FORMA</a>
+    <nav class="links" id="links">
+      <a href="#features">Возможности</a>
+      <a href="#ai">ИИ-сканер</a>
+      <a href="#stories">Истории</a>
+      <a href="#compare">Сравнение</a>
+      <a href="#faq">Вопросы</a>
+    </nav>
+    <a class="btn primary sm" href="../index.html">Открыть приложение</a>
+    <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="top">
+  <div class="glow g1" aria-hidden="true"></div>
+  <div class="glow g2" aria-hidden="true"></div>
+  <div class="wrap hero-in">
+    <div class="hero-copy">
+      <div class="pill"><span class="dot"></span> БЕСПЛАТНО · БЕЗ ПОДПИСКИ · БЕЗ РЕГИСТРАЦИИ</div>
+      <h1>Сфоткай еду.<br /><span class="grad">Похудей на результат.</span></h1>
+      <p class="lead">
+        FORMA — фитнес-приложение, которое считает калории, белки, жиры и углеводы
+        <b>по обычной фотографии</b> и собирает персональный план похудения.
+        ИИ-коуч, истории реальных людей, челленджи и тренировки — всё в одном месте.
+      </p>
+      <div class="cta">
+        <a class="btn primary lg" href="../index.html">Попробовать бесплатно</a>
+        <a class="btn ghost lg" href="#ai">Как это работает</a>
+      </div>
+      <div class="proof">
+        <div><b>0 ₽</b><span>навсегда без подписки</span></div>
+        <div><b>30 сек</b><span>на подсчёт БЖУ по фото</span></div>
+        <div><b>67</b><span>упражнений в библиотеке</span></div>
+      </div>
+    </div>
+
+    <div class="hero-phone">
+      <div class="phone">
+        <div class="notch" aria-hidden="true"></div>
+        <div class="screen">
+          <div class="ph-top"><span class="ph-eyebrow">📸 ИИ-СКАНЕР</span><span class="ph-pill">Бесплатно</span></div>
+          <div class="ph-shot">
+            <div class="plate"><span>🥗</span></div>
+            <div class="scanline" aria-hidden="true"></div>
+          </div>
+          <div class="ph-name">Боул с лососем и гречкой</div>
+          <div class="ph-bju">
+            <div class="m cal"><b>486</b><span>ккал</span></div>
+            <div class="m pro"><b>38</b><span>белки</span></div>
+            <div class="m fat"><b>16</b><span>жиры</span></div>
+            <div class="m car"><b>48</b><span>углеводы</span></div>
+          </div>
+          <div class="ph-cta">+ Добавить в дневник</div>
+        </div>
+      </div>
+      <div class="float f1"><span>🔥</span><div><b>−7,4 кг</b><small>за 3 месяца</small></div></div>
+      <div class="float f2"><span>⚡</span><div><b>−1,2 кг/нед</b><small>без голода</small></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ПРОБЛЕМА ================= -->
+<section class="strip">
+  <div class="wrap strip-in">
+    <p>Устал от приложений, которые…</p>
+  </div>
+  <div class="marquee">
+    <div class="mq">
+      <span>💸 хотят 3 990 ₽ в месяц за подсчёт калорий</span>
+      <span>📖 требуют вести еду вручную — 10 минут в день</span>
+      <span>🙈 прячут историю твоих достижений за пятой подпиской</span>
+      <span>🎯 продают «волшебные» планы, а не работающие</span>
+      <span>💸 хотят 3 990 ₽ в месяц за подсчёт калорий</span>
+      <span>📖 требуют вести еду вручную — 10 минут в день</span>
+      <span>🙈 прячут историю твоих достижений за пятой подпиской</span>
+      <span>🎯 продают «волшебные» планы, а не работающие</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ВОЗМОЖНОСТИ ================= -->
+<section class="sec" id="features">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">ВОЗМОЖНОСТИ</span>
+      <h2>Всё, что нужно для похудения.<br />Без лишних подписок.</h2>
+      <p class="sub">Мы разобрали YAZIO, MyFitnessPal, Lose It!, Noom и Flo — и собрали только то, что реально работает.</p>
+    </div>
+
+    <div class="grid">
+      <article class="fcard wide">
+        <div class="ficon">📸</div>
+        <h3>ИИ-сканер еды</h3>
+        <p>Наведи камеру на тарелку. FORMA определит блюдо, калории, белки, жиры и углеводы. Не нужно ничего взвешивать и искать вручную.</p>
+        <div class="ftags"><span>Gemini 2.0</span><span>Llama Vision</span><span>Офлайн-режим</span></div>
+      </article>
+
+      <article class="fcard">
+        <div class="ficon">🧮</div>
+        <h3>Дневник питания</h3>
+                <p>Кольца по БЖУ, счётчик воды, быстрый поиск по базе продуктов, свои продукты и рецепты.</p>
+      </article>
+
+      <article class="fcard">
+        <div class="ficon">🤖</div>
+        <h3>ИИ-коуч</h3>
+        <p>Спроси что угодно про похудение: «что съесть на 500 ккал?», «можно ли хлеб вечером?». Ответ за секунды.</p>
+      </article>
+
+      <article class="fcard">
+        <div class="ficon">📋</div>
+        <h3>План на неделю</h3>
+        <p>ИИ считает твой BMR и собирает меню на 7 дней с БЖУ, водой и тренировкой на каждый день.</p>
+      </article>
+
+      <article class="fcard">
+        <div class="ficon">🏋️</div>
+        <h3>67 упражнений</h3>
+        <p>Гайды с видео, счётчик подходов и таймер. Тренировки для дома без инвентаря и в зале.</p>
+      </article>
+
+      <article class="fcard">
+        <div class="ficon">📉</div>
+        <h3>Прогресс и вес</h3>
+        <p>График веса, замеры тела, фото «до/после» и разбивка по неделям.</p>
+      </article>
+
+      <article class="fcard wide alt">
+        <div class="ficon">📲</div>
+        <h3>Истории и лента</h3>
+        <p>Публикуй свои сторис «до → после», получай реакции и поддержку, изучай путь других людей в ленте и рейтинге прогресса.</p>
+        <div class="ftags"><span>Сторис</span><span>Лента</span><span>Рейтинг</span><span>Комментарии</span></div>
+      </article>
+
+      <article class="fcard">
+        <div class="ficon">🏆</div>
+        <h3>Челленджи</h3>
+        <p>«2 литра воды в день», «10 000 шагов», «21 день без сахара». Начни, держи серию, получи значок.</p>
+      </article>
+
+      <article class="fcard">
+        <div class="ficon">🔔</div>
+        <h3>Умные пуши</h3>
+        <p>Напомним о воде, взвешивании, недоборе белка и тренировке — 7 готовых сценариев.</p>
+      </article>
+
+      <article class="fcard">
+        <div class="ficon">🥗</div>
+        <h3>Рецепты</h3>
+        <p>Готовые блюда с БЖУ, фильтры по калориям и времени, избранное.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ИИ ================= -->
+<section class="sec alt" id="ai">
+  <div class="glow g3" aria-hidden="true"></div>
+  <div class="wrap ai-in">
+    <div class="ai-copy">
+      <span class="eyebrow">ТЕХНОЛОГИЯ</span>
+      <h2>Бесплатный ИИ, который<br />смотрит на твою еду</h2>
+      <p class="sub">
+        Большинство конкурентов прячет ИИ-распознавание за платной подпиской.
+        У нас оно доступно <b>всем и всегда</b> — достаточно подключить бесплатный
+        ключ Gemini (или использовать встроенный офлайн-режим).
+      </p>
+
+      <div class="steps">
+        <div class="step">
+          <span class="n">1</span>
+          <div><b>Сфоткай тарелку</b><p>Камера или готовое фото из галереи.</p></div>
+        </div>
+        <div class="step">
+          <span class="n">2</span>
+          <div><b>ИИ узнаёт блюдо</b><p>Gemini 2.0 Flash или Groq Llama Vision — бесплатные модели с фото.</p></div>
+        </div>
+        <div class="step">
+          <span class="n">3</span>
+          <div><b>Получаешь БЖУ</b><p>Калории, белки, жиры и углеводы — и кнопка «в дневник».</p></div>
+        </div>
+        <div class="step">
+          <span class="n">4</span>
+          <div><b>Видишь долю от нормы</b><p>Понятно, сколько ещё можно съесть сегодня.</p></div>
+        </div>
+      </div>
+
+      <div class="ai-note">
+        🔒 Ключ хранится только в твоём браузере. Фото уходят провайдеру ИИ напрямую и нигде не сохраняются.
+      </div>
+    </div>
+
+    <div class="ai-demo">
+      <div class="demo-card">
+        <div class="dc-head">
+          <span class="ph-pill">Результат сканирования</span>
+          <span class="mono">12 сек</span>
+        </div>
+        <div class="dc-photo"><span>🍝</span></div>
+        <div class="dc-title">Паста болоньезе с фаршем</div>
+        <div class="dc-grid">
+          <div class="m cal"><b>612</b><span>ккал</span></div>
+          <div class="m pro"><b>32</b><span>белки г</span></div>
+          <div class="m fat"><b>18</b><span>жиры г</span></div>
+          <div class="m car"><b>74</b><span>углеводы г</span></div>
+        </div>
+        <div class="dc-bars">
+          <div class="bar"><span style="width:61%">61%</span></div>
+          <div class="bar alt"><span style="width:38%">38%</span></div>
+          <div class="bar"><span style="width:44%">44%</span></div>
+          <div class="bar alt"><span style="width:52%">52%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ИСТОРИИ ================= -->
+<section class="sec" id="stories">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">СООБЩЕСТВО</span>
+      <h2>Не «до/после» из рекламы.<br />А реальные люди рядом.</h2>
+      <p class="sub">Публикуй свои сторис, поддерживай других и смотри, что получается у людей с похожей отправной точкой.</p>
+    </div>
+
+    <div class="st-rail">
+      <div class="st"><span class="av" style="--g:linear-gradient(135deg,#22c55e,#a3e635)">М</span><b>@masha_fit</b><small>−12 кг</small></div>
+      <div class="st"><span class="av" style="--g:linear-gradient(135deg,#60a5fa,#06b6d4)">Д</span><b>@dimka_sport</b><small>+8 кг</small></div>
+      <div class="st"><span class="av" style="--g:linear-gradient(135deg,#f43f5e,#f59e0b)">А</span><b>@anya_loss</b><small>−9 кг</small></div>
+      <div class="st"><span class="av" style="--g:linear-gradient(135deg,#8b5cf6,#ec4899)">И</span><b>@ilya_move</b><small>−5 кг</small></div>
+      <div class="st"><span class="av" style="--g:linear-gradient(135deg,#fbbf24,#f43f5e)">К</span><b>@kate_fit</b><small>−7 кг</small></div>
+      <div class="st add"><span class="av">+</span><b>Твоя история</b><small>покажи результат</small></div>
+    </div>
+
+    <div class="posts">
+      <article class="post">
+        <div class="p-head"><span class="av sm" style="--g:linear-gradient(135deg,#22c55e,#a3e635)">М</span><div><b>@masha_fit</b><small>2 часа назад</small></div></div>
+        <div class="p-body">Полгода назад не могла подняться на 4 этаж без отдыха. Сегодня — 12 кг минус и 3 подтяжки. Кто-то говорил «просто меньше ешь». Ага, и ещё бегать по утрам 😅</div>
+        <div class="p-acts"><span>🔥 412</span><span>💬 38</span><span>🎉 21</span></div>
+      </article>
+      <article class="post">
+        <div class="p-head"><span class="av sm" style="--g:linear-gradient(135deg,#8b5cf6,#ec4899)">И</span><div><b>@ilya_move</b><small>вчера</small></div></div>
+        <div class="p-body">Заехал на FORMA ради подсчёта калорий, остался ради сообщества. Первая неделя — минус 1,2 кг, и это вообще без голода.</div>
+        <div class="p-acts"><span>🔥 186</span><span>💬 14</span><span>🎉 9</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= СРАВНЕНИЕ ================= -->
+<section class="sec alt" id="compare">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">СРАВНЕНИЕ</span>
+      <h2>Почему FORMA, а не они</h2>
+      <p class="sub">Мы не копировали чужие фичи вслепую — мы взяли то, что у конкурентов работает, и убрали то, что стоит денег.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table class="cmp">
+        <thead>
+          <tr><th>Возможность</th><th class="us">FORMA</th><th>YAZIO</th><th>MyFitnessPal</th><th>Lose It!</th><th>Noom</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Распознавание еды по фото</td><td class="us ok">Бесплатно</td><td class="pay">Только PRO</td><td class="no">—</td><td class="pay">Только Premium</td><td class="pay">Только Plus</td></tr>
+          <tr><td>Цена за месяц</td><td class="us ok">0 ₽</td><td>≈600 ₽</td><td>≈750 ₽</td><td>≈700 ₽</td><td>≈900 ₽</td></tr>
+          <tr><td>ИИ-коуч и чат</td><td class="us ok">Да</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+          <tr><td>Персональный план питания</td><td class="us ok">ИИ, 7 дней</td><td class="no">—</td><td class="no">—</td><td class="pay">Premium</td><td class="pay">Plus</td></tr>
+          <tr><td>Лента и сторисы «до/после»</td><td class="us ok">Да</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+          <tr><td>Челленджи и значки</td><td class="us ok">Да</td><td>Да</td><td class="no">—</td><td class="no">—</td><td>Да</td></tr>
+          <tr><td>Умные пуш-напоминания</td><td class="us ok">7 сценариев</td><td>Да</td><td>Да</td><td>Да</td><td>Да</td></tr>
+          <tr><td>Библиотека упражнений</td><td class="us ok">67</td><td>350+</td><td>Да</td><td>Да</td><td>Да</td></tr>
+          <tr><td>Работа без аккаунта</td><td class="us ok">Да</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+          <tr><td>Данные хранятся у тебя</td><td class="us ok">Локально</td><td class="no">Облако</td><td class="no">Облако</td><td class="no">Облако</td><td class="no">Облако</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fine">Данные о ценах и функциях приведены по публичным сайтам сервисов на момент публикации и могут меняться.</p>
+  </div>
+</section>
+
+<!-- ================= КАК РАБОТАЕТ ================= -->
+<section class="sec" id="how">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">КАК НАЧАТЬ</span>
+      <h2>Три шага — и ты уже считаешь</h2>
+    </div>
+    <div class="how">
+      <div class="hc"><span>1️⃣</span><h3>Укажи цифры</h3><p>Вес, рост, возраст, цель. Занимает минуту, данные остаются в браузере.</p></div>
+      <div class="hc"><span>2️⃣</span><h3>Сканируй еду</h3><p>Фоткай тарелку — получай БЖУ. Или собери план на неделю у ИИ.</p></div>
+      <div class="hc"><span>3️⃣</span><h3>Смотри результат</h3><p>Отмечай день, следи за кольцами и весом, делись историей в ленте.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ТАРИФЫ ================= -->
+<section class="sec alt" id="pricing">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">ТАРИФЫ</span>
+      <h2>Один тариф. Ноль рублей.</h2>
+      <p class="sub">Мы не делаем «пробный период на 7 дней». ИИ-сканер, план и вся лента — бесплатно и без ограничений.</p>
+    </div>
+
+    <div class="pricing">
+      <div class="plan">
+        <div class="p-badge">Бесплатно навсегда</div>
+        <h3>Free</h3>
+        <div class="p-price">0 ₽<small>/мес</small></div>
+        <ul>
+          <li>✅ ИИ-распознавание еды по фото</li>
+          <li>✅ Дневник питания, БЖУ и вода</li>
+          <li>✅ ИИ-коуч и план на 7 дней</li>
+          <li>✅ 67 упражнений и готовые тренировки</li>
+          <li>✅ Сторис, лента и рейтинг</li>
+          <li>✅ Челленджи, значки, пуши</li>
+          <li>✅ Экспорт своих данных</li>
+        </ul>
+        <a class="btn primary lg full" href="../index.html">Начать бесплатно</a>
+      </div>
+      <div class="plan ghost">
+        <h3>Почему не Pro?</h3>
+        <p class="p-sm">У нас нет платного тарифа. Пока FORMA растёт, мы зарабатываем на партнёрских интеграциях и донатах — но не на блокировке базовых функций.</p>
+        <ul class="plain">
+          <li>🔓 ИИ-сканер не станет платным</li>
+          <li>🔓 Твои данные не продаются</li>
+          <li>🔓 Работает офлайн и без аккаунта</li>
+          <li>🔓 Открытый стек: можно проверить каждый файл</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section class="sec" id="faq">
+  <div class="wrap narrow">
+    <div class="sec-head">
+      <span class="eyebrow">ВОПРОСЫ</span>
+      <h2>Частые вопросы</h2>
+    </div>
+
+    <details class="qa" open><summary>Это правда бесплатно?</summary><p>Да. ИИ-сканер, ИИ-коуч, план питания, тренировки и лента работают без оплаты. Сами модели ИИ — бесплатные тарифы Gemini и Groq, ключ хранится у тебя в браузере.</p></details>
+    <details class="qa"><summary>Нужен интернет?</summary><p>Для работы ИИ — да, он обращается к провайдеру модели. Всё остальное (дневник, тренировки, прогресс, сторис) работает офлайн: данные лежат в localStorage твоего браузера.</p></details>
+    <details class="qa"><summary>Где хранятся мои фото и данные?</summary><p>Данные приложения — в твоём браузере. Фото отправляются напрямую провайдеру ИИ по HTTPS и не сохраняются на наших серверах. Скачать всё можно в настройках одной кнопкой.</p></details>
+    <details class="qa"><summary>Насколько точны расчёты?</summary><p>Фото-оценка — это оценка (±20–30 %), как у любого визуального ИИ. Для максимальной точности есть ручной ввод и проверка веса в дневнике — итоговая цифра всегда под твоим контролем.</p></details>
+    <details class="qa"><summary>Нужна ли регистрация?</summary><p>Нет. Приложение открывается сразу. Аккаунт понадобится только в будущей облачной версии, если мы её сделаем.</p></details>
+    <details class="qa"><summary>А если ИИ не подключился?</summary><p>Работает встроенный офлайн-режим: приложение подставит средние значения по типу блюда и честно покажет, что оценка приблизительная. Остальные функции не пострадают.</p></details>
+  </div>
+</section>
+
+<!-- ================= CTA ================= -->
+<section class="cta-sec">
+  <div class="wrap cta-in">
+    <h2>Твой результат не ждёт пятой подписки</h2>
+    <p>Сфоткай первую тарелку уже сегодня. Это бесплатно.</p>
+    <a class="btn primary lg" href="../index.html">Открыть FORMA</a>
+    <div class="cta-badge">0 ₽ · без регистрации · работает офлайн</div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div class="f-brand">
+      <a class="logo" href="#top"><span class="mark">F</span> FORMA</a>
+      <p>Сфоткай еду. Похудей на результат.</p>
+    </div>
+    <div class="f-cols">
+      <div><b>Приложение</b><a href="../index.html">Открыть</a><a href="#features">Возможности</a><a href="#ai">ИИ-сканер</a><a href="#pricing">Тарифы</a></div>
+      <div><b>Сообщество</b><a href="#stories">Истории</a><a href="#compare">Сравнение</a><a href="#faq">Вопросы</a></div>
+    </div>
+  </div>
+  <div class="wrap copy">© 2026 FORMA. Сделано с ♥ для тех, кто хочет результат, а не подписку.</div>
+</footer>
+
+<script>
+  // Бургер-меню
+  const burger = document.getElementById('burger');
+  burger.addEventListener('click', () => document.getElementById('links').classList.toggle('open'));
+  // Плавная прокрутка + подсветка активного пункта
+  const links = [...document.querySelectorAll('#links a')];
+  const secs = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const nav = document.getElementById('nav');
+  const onScroll = () => {
+    nav.classList.toggle('solid', scrollY > 20);
+    let i = 0;
+    secs.forEach((s, k) => { if (s.getBoundingClientRect().top <= 120) i = k; });
+    links.forEach((a, k) => a.classList.toggle('active', k === i));
+  };
+  addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  // Мягкое появление секций
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.12 });
+  document.querySelectorAll('.fcard, .hc, .post, .plan, .step').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

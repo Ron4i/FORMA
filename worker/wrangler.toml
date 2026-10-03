@@ -1,0 +1,18 @@
+name = "forma-api"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+
+# D1 привязывается один раз после `wrangler d1 create forma-db`:
+# вставьте выданный database_id в поле database_id ниже.
+[[d1_databases]]
+binding = "DB"
+database_name = "forma-db"
+database_id = "ВСТАВЬТЕ_DATABASE_ID_СЮДА"
+migrations_dir = "migrations"
+
+# Публичный адрес Worker'а. Впишите его также в assets/js/api.js → WORKER_URL.
+[vars]
+STORY_TTL_HOURS = "24"
+
+[observability]
+enabled = true

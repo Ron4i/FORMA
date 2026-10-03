@@ -1,0 +1,37 @@
+# ---------- Сборочный мусор и личное ----------
+node_modules/
+package-lock.json
+.vercel/
+.netlify/
+dist/
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ---------- Профили Chrome из .verify (по 15 МБ каждый) ----------
+.verify/.cprof-*/
+.verify/.chrome-diag/
+.verify/.cache/
+.verify/.profiles/
+
+# ---------- Скриншоты тестов (пересоздаются за секунды) ----------
+.verify/*.png
+
+# ---------- Cloudflare ----------
+worker/.wrangler/
+worker/.dev.vars
+worker/node_modules/
+
+# ---------- Чужой проект в этой папке (WPF-«снеговик», не FORMA) ----------
+build/
+
+# ---------- Крупные личные файлы, которые случайно лежат в папке ----------
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.exe
+*.pdf

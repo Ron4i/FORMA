@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>FORMA — Сфоткай еду. Похудей на результат.</title>
+    <meta
+      name="description"
+      content="FORMA — бесплатное фитнес-приложение: ИИ считает калории, жиры и углеводы по фото еды, строит личный план похудения, ведёт тренировки и ленту историй. Без подписки."
+    />
+    <meta name="theme-color" content="#070b12" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="FORMA" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="FORMA — Сфоткай еду. Похудей на результат." />
+    <meta
+      property="og:description"
+      content="ИИ считает калории и БЖУ по фото, строит план похудения и ведёт ленту историй. Бесплатно."
+    />
+    <meta property="og:image" content="icons/icon-512.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <link rel="stylesheet" href="assets/css/components.css" />
+    <link rel="stylesheet" href="assets/css/mobile.css" />
+    <link rel="stylesheet" href="assets/css/classic.css" />
+    <style>
+      html { background: #070b12; }
+      #boot {
+        position: fixed; inset: 0; display: grid; place-content: center;
+        justify-items: center; gap: 18px;
+        font: 600 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        color: #7c8798;
+        background: radial-gradient(120% 90% at 50% 0%, #10261a 0%, #070b12 60%);
+      }
+      #boot .ring {
+        width: 54px; height: 54px; border-radius: 50%;
+        border: 3px solid rgba(255,255,255,.08);
+        border-top-color: #22c55e; border-right-color: #a3e635;
+        animation: bootspin .9s linear infinite;
+      }
+      @keyframes bootspin { to { transform: rotate(360deg); } }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <div id="boot"><div class="ring"></div><div>FORMA загружается…</div></div>
+    <noscript>
+      <p style="color:#fff;font:16px system-ui;padding:24px">Для работы FORMA нужен включённый JavaScript.</p>
+    </noscript>
+    <script src="assets/js/data.js"></script>
+    <script src="assets/js/store.js"></script>
+    <script src="assets/js/gps.js"></script>
+    <script src="assets/js/ai.js"></script>
+    <script src="assets/js/push.js"></script>
+    <script src="assets/js/social.js"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/core.js"></script>
+    <script src="assets/js/mobile.js"></script>
+    <script src="assets/vendor/leaflet/leaflet.js"></script>
+    <script src="assets/js/views.js"></script>
+    <script src="assets/js/views_gps.js"></script>
+    <script src="assets/js/views_social.js"></script>
+    <script>
+      (function () {
+        function hide() {
+          var b = document.getElementById("boot");
+          if (!b) return;
+          b.style.transition = "opacity .3s";
+          b.style.opacity = "0";
+          setTimeout(function () { b.remove(); }, 320);
+        }
+        window.addEventListener("load", hide);
+        setTimeout(hide, 2500);
+      })();
+    </script>
+  </body>
+</html>

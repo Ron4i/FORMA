@@ -1,0 +1,779 @@
+/* FORMA — мобильный шелл.
+   Загружается ПОСЛЕ styles.css/components.css и переопределяет их на телефоне:
+   safe-area, 5-пунктовое нижнее меню, крупные тапы, шторки, переходы, тосты. */
+
+:root {
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --tap: 44px; /* минимальная зона нажатия по WCAG/Apple HIG */
+  --nav-h: 58px;
+  --shell-header-h: 52px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ================= Базовая типографика и ритм ================= */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
+  /* Декоративные подсветки и бегущие строки не должны распирать документ. */
+  overflow-x: hidden;
+}
+
+/* Графики рисуются как canvas.width = cssWidth * dpr. Без width:100%
+   layout-ширина canvas равна ширине атрибута, поэтому при каждой
+   перерисовке холст растёт и ломает вёрстку. Правило глобальное:
+   баг воспроизводится и на десктопе. */
+canvas[data-chart] {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
+body.no-scroll {
+  overflow: hidden;
+}
+
+/* Плашка-предупреждение о незавершённой GPS-записи: видна на любом экране. */
+.gps-rec-banner {
+  position: fixed;
+  top: calc(var(--safe-t) + 8px);
+  left: 12px;
+  right: 12px;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(239, 68, 68, 0.95);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  animation: bannerDrop 0.32s var(--ease-out);
+}
+.gps-rec-banner .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #fff;
+  flex: 0 0 9px;
+  animation: pulseDot 1.4s ease-in-out infinite;
+}
+.gps-rec-banner .lbl {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gps-rec-banner button {
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 10px;
+  background: #fff;
+  color: #b91c1c;
+  font: inherit;
+  font-weight: 800;
+  padding: 7px 11px;
+  min-height: 34px;
+  cursor: pointer;
+}
+@keyframes bannerDrop {
+  from { transform: translateY(-120%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.82); }
+}
+
+/* ================= Нижнее меню (5 вкладок) ================= */
+
+.m-bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  display: none;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: stretch;
+  background: color-mix(in srgb, var(--bg-2) 88%, transparent);
+  backdrop-filter: saturate(180%) blur(18px);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  border-top: 1px solid var(--line);
+  padding-bottom: var(--safe-b);
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.22);
+}
+.m-bottom-nav a {
+  min-height: var(--nav-h);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 7px 2px 6px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  position: relative;
+  transition: color 0.2s;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.m-bottom-nav a svg {
+  width: 23px;
+  height: 23px;
+  display: block;
+  transition: transform 0.28s var(--ease-spring);
+}
+.m-bottom-nav a span {
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.m-bottom-nav a.active {
+  color: var(--accent);
+}
+.m-bottom-nav a.active svg {
+  transform: translateY(-1px) scale(1.06);
+}
+.m-bottom-nav a.active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 3px;
+  border-radius: 0 0 4px 4px;
+  background: var(--grad);
+}
+.m-bottom-nav a:active {
+  transform: scale(0.94);
+}
+.m-bottom-nav a .badge {
+  position: absolute;
+  top: 5px;
+  left: calc(50% + 8px);
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--rose);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  display: grid;
+  place-content: center;
+  line-height: 1;
+}
+
+/* ================= Область контента ================= */
+
+.m-main {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: calc(var(--safe-t) + 14px) 16px calc(var(--nav-h) + var(--safe-b) + 28px);
+}
+
+.m-page {
+  animation: pageIn 0.3s var(--ease-out);
+}
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.995); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Шапка экрана: крупный заголовок + контекст + действия. */
+.m-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 2px 0 16px;
+}
+.m-head .ttl {
+  font-size: 27px;
+  line-height: 1.12;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+.m-head .sub {
+  margin: 5px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.m-head-acts {
+  display: flex;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+.icon-btn {
+  width: var(--tap);
+  height: var(--tap);
+  display: grid;
+  place-content: center;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  padding: 0;
+  position: relative;
+  transition: transform 0.16s, background 0.16s;
+}
+.icon-btn svg { width: 21px; height: 21px; }
+.icon-btn:active { transform: scale(0.9); background: var(--card-2); }
+.icon-btn .dot {
+  position: absolute;
+  top: 8px;
+  right: 9px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--rose);
+  border: 2px solid var(--card);
+}
+
+/* Крупная зона нажатия для всех интерактивных элементов. */
+.m-page a,
+.m-page button,
+.m-page [role="button"],
+.m-page .chip,
+.m-page .stat,
+.m-page .card,
+.m-page .list-row,
+.m-page .quick {
+  touch-action: manipulation;
+}
+.m-page button,
+.m-page .btn {
+  min-height: var(--tap);
+}
+
+/* ================= Карточки и сетки ================= */
+
+.m-grid {
+  display: grid;
+  gap: 12px;
+}
+.m-grid.g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.m-grid.g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.m-grid.g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+/* Карточка-показатель: крупная цифра + подпись. Нажатие открывает детали. */
+.m-metric {
+  position: relative;
+  border-radius: 18px;
+  padding: 14px 14px 13px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  text-align: left;
+  color: var(--text);
+  cursor: pointer;
+  min-height: 92px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.16s, border-color 0.16s;
+}
+.m-metric:active { transform: scale(0.97); }
+.m-metric .mi {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: grid;
+  place-content: center;
+  background: var(--accent-soft);
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.m-metric .mi svg { width: 18px; height: 18px; }
+.m-metric .mv {
+  font-size: 23px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.m-metric .mv small { font-size: 12px; font-weight: 700; color: var(--muted); }
+.m-metric .ml {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: 3px;
+  line-height: 1.25;
+}
+.m-metric.accent { background: linear-gradient(150deg, rgba(34,197,94,.16), var(--card) 62%); }
+.m-metric.blue { background: linear-gradient(150deg, rgba(59,130,246,.16), var(--card) 62%); }
+.m-metric.blue .mi { background: rgba(59,130,246,.14); color: var(--blue); }
+.m-metric.rose { background: linear-gradient(150deg, rgba(244,63,94,.14), var(--card) 62%); }
+.m-metric.rose .mi { background: rgba(244,63,94,.14); color: var(--rose); }
+.m-metric.violet { background: linear-gradient(150deg, rgba(139,92,246,.14), var(--card) 62%); }
+.m-metric.violet .mi { background: rgba(139,92,246,.14); color: var(--violet); }
+.m-metric.amber { background: linear-gradient(150deg, rgba(251,191,36,.14), var(--card) 62%); }
+.m-metric.amber .mi { background: rgba(251,191,36,.14); color: var(--amber); }
+
+/* Горизонтальная прокрутка для наборов карточек (дни, чипы, программы). */
+.m-hscroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+  margin: 0 -16px;
+  padding-left: 16px;
+  padding-right: 16px;
+  scrollbar-width: none;
+}
+.m-hscroll::-webkit-scrollbar { display: none; }
+.m-hscroll > * {
+  scroll-snap-align: start;
+  flex: 0 0 auto;
+}
+
+/* ================= Шторка (bottom sheet) ================= */
+
+.m-sheet-back {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(3, 7, 14, 0.62);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  opacity: 0;
+  animation: fadeIn 0.22s ease forwards;
+  display: flex;
+  align-items: flex-end;
+}
+@keyframes fadeIn { to { opacity: 1; } }
+
+.m-sheet {
+  width: 100%;
+  max-height: 88vh;
+  background: var(--bg-2);
+  border-radius: 26px 26px 0 0;
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -18px 50px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  animation: sheetUp 0.34s var(--ease-out) forwards;
+  padding-bottom: var(--safe-b);
+}
+@keyframes sheetUp { to { transform: translateY(0); } }
+.m-sheet .grab {
+  width: 40px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line);
+  margin: 10px auto 2px;
+  flex: 0 0 auto;
+}
+.m-sheet .sh-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 18px 12px;
+  flex: 0 0 auto;
+}
+.m-sheet .sh-head h3 { margin: 0; font-size: 18px; font-weight: 800; }
+.m-sheet .sh-body {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 18px 20px;
+  overscroll-behavior: contain;
+}
+.m-sheet .sh-foot {
+  flex: 0 0 auto;
+  padding: 12px 18px calc(14px + var(--safe-b));
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: 10px;
+}
+.m-sheet .sh-foot .btn { flex: 1; }
+
+/* ================= Тосты ================= */
+
+.m-toast-host {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(var(--nav-h) + var(--safe-b) + 12px);
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.m-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 15px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  box-shadow: var(--shadow);
+  animation: toastIn 0.3s var(--ease-spring);
+}
+.m-toast.out { animation: toastOut 0.24s ease forwards; }
+.m-toast .ic { flex: 0 0 auto; display: grid; place-content: center; }
+.m-toast .tx { flex: 1; min-width: 0; }
+.m-toast.error { border-color: color-mix(in srgb, var(--danger) 55%, var(--line)); }
+.m-toast.error .ic { color: var(--danger); }
+.m-toast.ok .ic { color: var(--accent); }
+@keyframes toastIn { from { opacity: 0; transform: translateY(16px) scale(0.96); } }
+@keyframes toastOut { to { opacity: 0; transform: translateY(10px) scale(0.97); } }
+
+/* ================= Скелетоны загрузки ================= */
+
+.m-skel {
+  border-radius: 14px;
+  background: linear-gradient(
+    90deg,
+    var(--card) 0%,
+    var(--card-2) 40%,
+    var(--card) 80%
+  );
+  background-size: 300% 100%;
+  animation: shimmer 1.25s linear infinite;
+}
+@keyframes shimmer {
+  from { background-position: 140% 0; }
+  to { background-position: -40% 0; }
+}
+
+/* ================= Пустые состояния и ошибки ================= */
+
+.m-empty {
+  text-align: center;
+  padding: 34px 20px;
+  border-radius: 20px;
+  background: var(--card);
+  border: 1px dashed var(--line);
+}
+.m-empty .ei { font-size: 38px; line-height: 1; margin-bottom: 10px; }
+.m-empty .et { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.m-empty .es { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 14px; }
+
+.m-state {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  margin-bottom: 12px;
+}
+.m-state .si {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  border-radius: 12px;
+  display: grid;
+  place-content: center;
+  background: var(--card-2);
+}
+.m-state .si svg { width: 20px; height: 20px; }
+.m-state.warn { border-color: color-mix(in srgb, var(--amber) 45%, var(--line)); }
+.m-state.warn .si { color: var(--amber); }
+.m-state.err { border-color: color-mix(in srgb, var(--danger) 45%, var(--line)); }
+.m-state.err .si { color: var(--danger); }
+.m-state.info .si { color: var(--blue); }
+.m-state .sb { flex: 1; min-width: 0; }
+.m-state .st { font-size: 14.5px; font-weight: 700; margin-bottom: 3px; }
+.m-state .sd { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+.m-state .sa { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ================= Прогресс-бары ================= */
+
+.m-bar {
+  height: 9px;
+  border-radius: 999px;
+  background: var(--card-2);
+  overflow: hidden;
+  position: relative;
+}
+.m-bar > i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--grad);
+  width: 0;
+  transition: width 0.75s var(--ease-out);
+}
+.m-bar.blue > i { background: var(--grad-blue); }
+.m-bar.rose > i { background: var(--grad-rose); }
+.m-bar.violet > i { background: var(--grad-violet); }
+.m-bar.amber > i { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+
+/* ================= Планшет и десктоп ================= */
+
+@media (min-width: 900px) {
+  .m-main { max-width: 820px; padding-top: 26px; }
+  .m-bottom-nav { display: none; }
+}
+
+/* Телефон: включаем нижнее меню и мобильные размеры. */
+@media (max-width: 899px) {
+  .m-bottom-nav { display: grid; }
+
+  /* Скрываем десктопные названия секций, оставляем мобильную шапку. */
+  .m-page > h1.section:first-child { display: none; }
+
+  .card,
+  .surface {
+    border-radius: 18px;
+  }
+
+  /* Списки: крупнее строки, кнопка-стрелка справа. */
+  .list-row {
+    min-height: 58px;
+    padding: 12px 14px;
+  }
+
+  /* Формы: поля на всю ширину, шрифт не меньше 16px (иначе iOS зумит). */
+  .m-page input,
+  .m-page select,
+  .m-page textarea {
+    font-size: 16px;
+    min-height: var(--tap);
+  }
+
+  /* Модальные окна превращаем в шторки. */
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .modal {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 26px 26px 0 0;
+    margin: 0;
+    padding-bottom: calc(18px + var(--safe-b));
+    animation: sheetUp 0.32s var(--ease-out);
+  }
+
+  /* Крупная кнопка действия внизу экрана (например, «Начать тренировку»). */
+  .m-sticky-actions {
+    position: sticky;
+    bottom: calc(var(--nav-h) + var(--safe-b) + 8px);
+    z-index: 20;
+    display: flex;
+    gap: 10px;
+    padding: 10px 0 0;
+    margin-top: 12px;
+  }
+  .m-sticky-actions .btn { flex: 1; }
+
+  /* Таблицы прокручиваются по горизонтали, а не ломают вёрстку. */
+  .m-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+  }
+  .m-table-wrap table { min-width: 520px; }
+}
+
+/* Очень маленькие экраны (iPhone SE и старше). */
+@media (max-width: 360px) {
+  .m-head .ttl { font-size: 23px; }
+  .m-metric { min-height: 84px; padding: 12px; }
+  .m-metric .mv { font-size: 20px; }
+  .m-grid.g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .m-bottom-nav a { font-size: 9.5px; }
+}
+
+/* Уважение к системной настройке «уменьшить движение». */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Фокус с клавиатуры — только для навигации, не для тача. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* ================= Тренировка: полноэкночный режим ================= */
+
+body.m-immersive .m-bottom-nav,
+body.m-immersive .m-main { display: none; }
+
+.m-immersive-ui {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  padding: calc(var(--safe-t) + 12px) 16px calc(var(--safe-b) + 16px);
+  animation: pageIn 0.3s var(--ease-out);
+}
+.m-immersive-ui .im-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.m-immersive-ui .im-prog {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 14px;
+}
+.m-immersive-ui .im-prog i {
+  flex: 1;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--card-2);
+  transition: background 0.3s;
+}
+.m-immersive-ui .im-prog i.done { background: var(--accent); }
+.m-immersive-ui .im-prog i.now { background: var(--accent-2); }
+.m-immersive-ui .im-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.m-immersive-ui .im-ex-name {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 6px;
+}
+.m-immersive-ui .im-ex-meta { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
+.m-immersive-ui .im-next {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.m-immersive-ui .im-next b { color: var(--text); }
+.m-immersive-ui .im-acts {
+  display: flex;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.m-immersive-ui .im-acts .btn { flex: 1; }
+
+/* Круглая кнопка «готово» для отметки подхода. */
+.im-check {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  border: 0;
+  display: grid;
+  place-content: center;
+  gap: 2px;
+  background: var(--grad);
+  color: #06120a;
+  font: inherit;
+  font-weight: 800;
+  font-size: 15px;
+  cursor: pointer;
+  margin: 8px auto 0;
+  box-shadow: 0 14px 34px rgba(34, 197, 94, 0.34);
+  transition: transform 0.14s var(--ease-spring);
+}
+.im-check:active { transform: scale(0.92); }
+.im-check svg { width: 30px; height: 30px; }
+.im-check.pulse { animation: checkPulse 0.5s var(--ease-spring); }
+@keyframes checkPulse {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.13); }
+  100% { transform: scale(1); }
+}
+
+/* ------------------------------------------------------------------ */
+/* Сплиты по километрам                                                */
+/* Ширина полоски — относительно лучшего темпа: чем быстрее километр,   */
+/* тем короче полоска. Это читается быстрее, чем сравнение чисел.      */
+/* ------------------------------------------------------------------ */
+.sp-row {
+  display: grid;
+  grid-template-columns: 26px 1fr 58px 54px;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  font-size: 13px;
+  border-top: 1px solid var(--line);
+}
+.sp-row:first-child { border-top: 0; }
+.sp-km {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--muted);
+  font-size: 12px;
+}
+.sp-bar {
+  position: relative;
+  height: 8px;
+  border-radius: 99px;
+  background: var(--card-2);
+  overflow: hidden;
+}
+.sp-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--w, 100%);
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--accent), #38bdf8);
+}
+.sp-row.best .sp-bar::after {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+.sp-row.best .sp-km { color: #f59e0b; }
+.sp-t {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+.sp-d {
+  text-align: right;
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
