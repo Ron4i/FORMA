@@ -8,6 +8,7 @@ import WebSocket from "ws";
 
 const CHROME = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 const ROOT = join(import.meta.dirname, "..");
+const CDP = Number(process.env.CDP_PORT || 9344);
 
 // Свой статический сервер: тест не должен зависеть от того, запущен ли
 // сервер на 8899 снаружи (иначе «упавшие» маршруты означают лишь
@@ -38,9 +39,19 @@ const ROUTES = [
   "/feed/new", "/feed/u/@masha_fit", "/recipes/r1", "/nonexistent-route"
 ];
 
+// Маршруты, у которых есть конкретный ожидаемый маркер в DOM.
+// Без этого проверки неисправный маршрут молча «проходил»: renderTo
+// откатывается на главную, а главная непустая.
+const EXPECT = {
+  "/recipes/r1": "#rc-eat",
+  "/recipes/r99": null, // неизвестный рецепт -> список
+  "/feed/new": "#c-post",
+  "/feed/u/@masha_fit": "#up-follow"
+};
+
 const profile = mkdtempSync(join(tmpdir(), "forma-"));
 const proc = spawn(CHROME, [
-  "--headless=new", "--disable-gpu", "--remote-debugging-port=9333",
+  "--headless=new", "--disable-gpu", `--remote-debugging-port=${CDP}`,
   `--user-data-dir=${profile}`, "--no-first-run", "--no-default-browser-check",
   "--window-size=1400,1000", "about:blank"
 ], { stdio: "ignore" });
@@ -50,7 +61,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 async function getWsUrl() {
   for (let i = 0; i < 60; i++) {
     try {
-      const res = await fetch("http://127.0.0.1:9333/json/version");
+      const res = await fetch(`http://127.0.0.1:${CDP}/json/version`);
       const j = await res.json();
       if (j.webSocketDebuggerUrl) return j.webSocketDebuggerUrl;
     } catch {}
@@ -99,52 +110,64 @@ try {
   await S("Log.enable");
 
   const rows = [];
-  for (const route of ROUTES) {
+    for (const route of [...ROUTES, "/recipes/r99"]) {
     cdp.events.length = 0;
     await S("Page.navigate", { url: BASE + "#" + route });
     await sleep(1000);
     const res = await S("Runtime.evaluate", {
       expression: `(() => {
         const v = document.querySelector('#view');
-        return {
-          viewLen: v ? v.innerText.trim().length : -1,
-          first: v ? v.innerText.trim().split('\\n')[0].slice(0,44) : 'NO #view'
-        };
-      })()`,
-      returnByValue: true
-    });
-    const v = res.result.value;
-    const errs = cdp.events
-      .filter((e) => e.method === "Log.entryAdded" && e.params.entry.level === "error")
-      .map((e) => e.params.entry.text.slice(0, 160));
-    const ex = cdp.events
-      .filter((e) => e.method === "Runtime.exceptionThrown")
-      .map((e) => {
-        const d = e.params.exceptionDetails;
-        const desc = d.exception?.description || d.text || "";
-        const frames = (d.stackTrace?.callFrames || []).slice(0, 5)
-          .map((f) => `${f.functionName || "?"}@${(f.url || "").split("/").pop()}:${f.lineNumber + 1}`);
-        return [desc.split("\n")[0].slice(0, 160), ...frames.map((f) => "    at " + f)].join("\n");
+          const want = ${JSON.stringify(EXPECT[route] ?? null)};
+          return {
+            viewLen: v ? v.innerText.trim().length : -1,
+            first: v ? v.innerText.trim().split('\\n')[0].slice(0,44) : 'NO #view',
+            hash: decodeURIComponent(location.hash),
+            markerOk: want === null ? true : !!document.querySelector(want),
+            marker: want
+          };
+        })()`,
+        returnByValue: true
       });
-    rows.push({ route, ...v, errors: [...ex, ...errs] });
-  }
+      const v = res.result.value;
+      const errs = cdp.events
+        .filter((e) => e.method === "Log.entryAdded" && e.params.entry.level === "error")
+        .map((e) => e.params.entry.text.slice(0, 160));
+      const ex = cdp.events
+        .filter((e) => e.method === "Runtime.exceptionThrown")
+        .map((e) => {
+          const d = e.params.exceptionDetails;
+          const desc = d.exception?.description || d.text || "";
+          const frames = (d.stackTrace?.callFrames || []).slice(0, 5)
+            .map((f) => `${f.functionName || "?"}@${(f.url || "").split("/").pop()}:${f.lineNumber + 1}`);
+          return [desc.split("\n")[0].slice(0, 160), ...frames.map((f) => "    at " + f)].join("\n");
+        });
+      rows.push({ route, ...v, errors: [...ex, ...errs] });
+    }
 
-  console.log("\n=== FORMA — проверка маршрутов ===");
-  for (const r of rows) {
-    const flag = r.viewLen <= 0 ? "EMPTY" : r.errors.length ? "ERRS " : "ok   ";
-    console.log(`${flag} ${r.route.padEnd(22)} ${String(r.viewLen).padStart(5)}ch :: ${r.first}`);
-    r.errors.forEach((e) => console.log(`        ! ${e}`));
-  }
-  console.log(`\nИтого: ${rows.length} маршрутов, проблемных: ${rows.filter((r) => r.viewLen <= 0 || r.errors.length).length}`);
+    const bad = (r) => r.viewLen <= 0 || r.errors.length || !r.markerOk;
 
-  for (const route of ["/", "/scan", "/feed", "/coach", "/plan", "/challenges"]) {
-    await S("Page.navigate", { url: BASE + "#" + route });
-    await sleep(1000);
-    const { data } = await S("Page.captureScreenshot", { format: "png" });
-    writeFileSync(join(import.meta.dirname, `shot-${route === "/" ? "home" : route.slice(1)}.png`), Buffer.from(data, "base64"));
-  }
-  console.log("Скриншоты сохранены в .verify/");
-  ws.close();
+    console.log("\n=== FORMA — проверка маршрутов ===");
+    for (const r of rows) {
+      const flag = bad(r) ? "FAIL " : "ok   ";
+      const mark = r.marker ? (r.markerOk ? " ✓маркер" : ` ✗нет ${r.marker}`) : "";
+      console.log(`${flag} ${r.route.padEnd(22)} ${String(r.viewLen).padStart(5)}ch${mark} :: ${r.first}`);
+      r.errors.forEach((e) => console.log(`        ! ${e}`));
+    }
+    const failed = rows.filter(bad);
+    console.log(`\nИтого: ${rows.length} маршрутов, проблемных: ${failed.length}`);
+    if (failed.length) {
+      console.log(failed.map((r) => "  - " + r.route).join("\n"));
+    }
+
+    for (const route of ["/", "/scan", "/feed", "/coach", "/plan", "/challenges"]) {
+      await S("Page.navigate", { url: BASE + "#" + route });
+      await sleep(1000);
+      const { data } = await S("Page.captureScreenshot", { format: "png" });
+      writeFileSync(join(import.meta.dirname, `shot-${route === "/" ? "home" : route.slice(1)}.png`), Buffer.from(data, "base64"));
+    }
+    console.log("Скриншоты сохранены в .verify/");
+    ws.close();
+    process.exitCode = failed.length ? 1 : 0;
 } catch (e) {
   console.error("FAILED:", e.message);
 } finally {

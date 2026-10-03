@@ -5,10 +5,10 @@
   "description": "Обёртка FORMA для Android через Capacitor. Само приложение остаётся без сборки — эта папка нужна только для APK.",
   "type": "module",
   "scripts": {
-      "bundle": "node prepare.mjs",
-      "sync": "npm run bundle && cap sync android",
-    "apk": "npm run sync && cd android && call gradlew.bat assembleDebug",
-    "apk:release": "npm run sync && cd android && call gradlew.bat assembleRelease",
+    "bundle": "node prepare.mjs",
+    "sync": "npm run bundle && cap sync android",
+    "apk": "npm run sync && cd android && call .\\gradlew.bat assembleDebug",
+    "apk:release": "npm run sync && cd android && call .\\gradlew.bat assembleRelease",
     "open": "cap open android"
   },
   "dependencies": {

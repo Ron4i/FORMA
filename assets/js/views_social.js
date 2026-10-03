@@ -384,7 +384,7 @@
   });
   function feedView(r) {
     if (r.parts[1] === "new") return feedComposer();
-    if (r.parts[1] === "u" && r.parts[2]) return userProfile(decodeURIComponent(r.parts[2]));
+    if (r.parts[1] === "u" && r.parts[2]) return userProfile(Fit.routeParam(r.parts[2]));
     return feedList();
   }
 
@@ -560,7 +560,7 @@
       const f = Fit.qs("#up-follow");
       if (f) {
         f.addEventListener("click", () => {
-          store.toggleFollow(decodeURIComponent(r.parts[2]));
+          store.toggleFollow(Fit.routeParam(r.parts[2]));
           Fit.renderTo();
         });
       }
@@ -825,11 +825,21 @@
   Fit.register("/recipes", recipesView, function () {
     bindRecipes(Fit.parseHash());
   });
-  function recipesView(r) {
-    if (r.parts[1] && r.parts[2]) {
-      const rec = Fit.RECIPES.find((x) => x.id === r.parts[1] && r.parts[2] === String(x.n));
-      if (!rec) return Fit.navigate("#/recipes");
-      let html =
+  function findRecipe(r) {
+      const id = r.parts[1];
+      if (!id) return null;
+      const rec = Fit.RECIPES.find((x) => x.id === id);
+      if (!rec) return null;
+      // Название в ссылке — только украшение для человека. Если оно не совпало
+      // (старый хэш, другой регистр), всё равно открываем рецепт по id.
+      return rec;
+    }
+
+    function recipesView(r) {
+      if (r.parts[1]) {
+        const rec = findRecipe(r);
+        if (!rec) return Fit.navigate("#/recipes");
+        let html =
         '<div class="page"><div class="page-head"><div><a class="btn ghost sm" href="#/recipes">← Рецепты</a></div>' +
         '<button class="btn primary sm" id="rc-eat">Добавить в дневник</button></div>' +
         '<div class="surface"><div style="font-size:56px;text-align:center">' + rec.e + "</div>" +
@@ -852,7 +862,7 @@
       '<div class="sub">Простые блюда с посчитанными БЖУ — на дефиците и на наборе</div></div></div><div class="recipe-grid">';
     Fit.RECIPES.forEach((rc) => {
       html +=
-        '<a class="recipe" href="#/recipes/' + esc(rc.id) + "/" + rc.n + '">' +
+        '<a class="recipe" href="#/recipes/' + encodeURIComponent(rc.id) + '">' +
         '<div class="thumb" style="background:' + rc.bg + '">' + rc.e + "</div>" +
         '<div class="rb"><div class="rt">' + esc(rc.title) + "</div>" +
         '<div class="rm">' + rc.min + " мин · " + (rc.tags || []).slice(0, 2).join(", ") + "</div>" +
@@ -866,7 +876,7 @@
     const e = Fit.qs("#rc-eat");
     if (!e) return;
     e.addEventListener("click", () => {
-      const rec = Fit.RECIPES.find((x) => x.id === r.parts[1] && r.parts[2] === String(x.n));
+          const rec = findRecipe(r);
       if (!rec) return;
       store.addNutrition(Fit.today(), { name: rec.title, kcal: rec.kcal, p: rec.p, f: rec.f, c: rec.c, source: "recipe" });
       Fit.toast("Добавлено в дневник ✅");

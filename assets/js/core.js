@@ -146,6 +146,19 @@
   }
   Fit.parseHash = parseHash;
 
+  /* Параметр маршрута: браузер может прислать его как percent-encoded
+     (Android WebView так кодирует кириллицу и пробелы), поэтому декодируем
+     безопасно — битый %-последовательность не должна ронять навигацию. */
+  function routeParam(part) {
+    if (part == null) return "";
+    try {
+      return decodeURIComponent(String(part));
+    } catch (e) {
+      return String(part);
+    }
+  }
+  Fit.routeParam = routeParam;
+
   function navigate(hash) {
     if (location.hash === hash) renderTo();
     else location.hash = hash;
@@ -488,7 +501,15 @@
   function renderTo() {
     const r = parseHash();
     let view = routes[r.path];
-    if (!view) view = routes["/"];
+    if (!view) {
+      // Неизвестный путь: показываем главную и чистим адрес, иначе
+      // «назад» возвращает на мёртвую запись истории.
+      view = routes["/"];
+      if (location.hash !== "#/") {
+        location.replace(location.pathname + location.search + "#/");
+        return;
+      }
+    }
     const inner = qs("#view");
     inner.innerHTML = "";
     inner._bind = binds[r.path] || null;

@@ -1,37 +1,11 @@
 // Навигация по маршрутам внутри WebView установленного APK.
 // Проверяет то, чего не видит ни один браузерный тест: что загруженные ассеты
 // реально маршрутизируются в нативном WebView на Android.
-import { setTimeout as sleep } from "node:timers/promises";
+import { launch, sleep } from "./device.mjs";
 
-const PORT = process.env.CDP_PORT || 9333;
-const ROUTES = (process.env.ROUTES || "#home,#scan,#feed,#progress,#profile").split(",");
-
-const res = await fetch(`http://127.0.0.1:${PORT}/json/list`);
-const page = (await res.json()).find((t) => t.type === "page" && t.url.includes("localhost"));
-if (!page) throw new Error("страница FORMA не найдена");
-
-const ws = new WebSocket(page.webSocketDebuggerUrl);
-let id = 0;
-const pending = new Map();
-ws.addEventListener("message", (ev) => {
-  const m = JSON.parse(ev.data);
-  if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); }
-});
-await new Promise((r, j) => {
-  ws.addEventListener("open", r, { once: true });
-  ws.addEventListener("error", j, { once: true });
-});
-
-function send(method, params = {}) {
-  const msgId = ++id;
-  return new Promise((r) => { pending.set(msgId, r); ws.send(JSON.stringify({ id: msgId, method, params })); });
-}
-
-async function evalIn(expr) {
-  const r = await send("Runtime.evaluate", { expression: expr, awaitPromise: true, returnByValue: true });
-  if (r.result?.exceptionDetails) return { __error: r.result.exceptionDetails.text };
-  return r.result?.result?.value;
-}
+const dev = await launch({ fresh: true });
+await sleep(2000);
+const evalIn = dev.evaluate;
 
 // Собираем ошибки, которые ловятся уже во время работы — их не видно по логам Android.
 await evalIn(`
@@ -44,31 +18,65 @@ await evalIn(`
 let pass = 0;
 const fails = [];
 
+// Маршруты берём у самого приложения (Fit.NAV), а не пишем руками:
+// список в тесте разошёлся бы с кодом тихо, и «проверка» превратилась бы
+// в формальность — первая же опечатка давала бы несуществующий маршрут,
+// который рендерится как предыдущий экран и молча проходит проверку.
+const routes = await evalIn(`(window.Fit?.NAV || []).map((n) => n.route)`);
+if (!routes?.length) {
+  console.error("Fit.NAV пуст — набор маршрутов получить не удалось.");
+  process.exit(1);
+}
+console.log(`Маршрутов в приложении: ${routes.length}`);
+
 const navCount = await evalIn(`document.querySelectorAll(".nav-link, .m-bottom-nav a").length`);
 console.log(`Навигационных ссылок в DOM: ${navCount}`);
 if (!navCount) fails.push("в навигации нет ни одной ссылки — нижнее меню не отрисовалось");
 
-for (const route of ROUTES) {
-  await evalIn(`location.hash = "${route}"`);
-  await sleep(500);
+/* Каждый маршрут обязан давать свой DOM: сравниваем снимок соседних
+   экранов, иначе «успех» означал бы лишь «отрисовалось что-то». */
+const snapshots = new Map();
+
+for (const route of routes) {
+  await evalIn(`location.hash = ${JSON.stringify("#" + route)}`);
+  await sleep(450);
   const info = await evalIn(`({
     hash: location.hash,
     len: (document.querySelector("#view")?.innerHTML || document.body.innerHTML).length,
     text: (document.body.innerText || "").trim().length,
     err: /Ошибка|Error 5|не найден/i.test(document.body.innerText || "") ? "виден текст ошибки" : null,
   })`);
-  const ok = info && info.len > 200 && info.text > 20 && !info.err;
+  if (!info || info.hash !== "#" + route) {
+    fails.push(`${route}: хеш не применился (${info?.hash})`);
+    console.log(`FAIL ${route}  хеш не применился`);
+    continue;
+  }
+  const ok = info.len > 200 && info.text > 20 && !info.err;
+  snapshots.set(route, info.len + ":" + info.text);
   if (ok) pass++;
   else fails.push(`${route}: ${JSON.stringify(info)}`);
-  console.log(`${ok ? "OK  " : "FAIL"} ${route}  html=${info?.len} текст=${info?.text}`);
+  console.log(`${ok ? "OK  " : "FAIL"} ${route}  html=${info.len} текст=${info.text}`);
+}
+
+// Соседние экраны с одинаковым снимком — это почти всегда «маршрут не найден».
+const dupes = new Map();
+for (const [r, sig] of snapshots) {
+  if (!dupes.has(sig)) dupes.set(sig, []);
+  dupes.get(sig).push(r);
+}
+for (const [sig, rs] of dupes) {
+  if (rs.length > 3) {
+    fails.push(`подозрительно много маршрутов с одинаковым рендером (${rs.length}): ${rs.join(", ")}`);
+    console.log(`WARN одинаковый рендер у ${rs.length}: ${rs.join(", ")}`);
+  }
 }
 
 const errs = await evalIn(`window.__formaErrors`);
 if (errs?.length) fails.push(`JS-ошибки в рантайме: ${errs.join(" | ")}`);
 
-ws.close();
+dev.ws.close();
 
-console.log(`\nИтог: ${pass}/${ROUTES.length} маршрутов работают в WebView на устройстве`);
+console.log(`\nИтог: ${pass}/${routes.length} маршрутов работают в WebView на устройстве`);
 if (fails.length) {
   console.error("ПРОБЛЕМЫ:\n- " + fails.join("\n- "));
   process.exit(1);
