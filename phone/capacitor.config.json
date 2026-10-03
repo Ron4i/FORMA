@@ -1,0 +1,11 @@
+{
+  "appId": "app.forma.fit",
+  "appName": "FORMA",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}

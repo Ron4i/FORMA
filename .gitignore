@@ -25,6 +25,20 @@ worker/.wrangler/
 worker/.dev.vars
 worker/node_modules/
 
+# ---------- Нативная сборка (Capacitor) ----------
+# Собирается командой phone\npm run apk, генерируется целиком заново,
+# весит сотни мегабайт и не относится к исходникам.
+phone/node_modules/
+phone/www/
+phone/android/
+phone/ios/
+
+# Ключ подписи — строго секрет. Потерянный ключ = невозможность обновления
+# приложения в Google Play. Шаблон (keystore.properties.example) в git входит.
+*.keystore
+*.jks
+keystore.properties
+
 # ---------- Чужой проект в этой папке (WPF-«снеговик», не FORMA) ----------
 build/
 

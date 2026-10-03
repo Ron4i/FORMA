@@ -109,7 +109,7 @@ Chrome/Edge на Android или десктопе: значок установк�
 
 ## Тесты
 
-10 автонаборов в headless Chrome. Каждый сам поднимает статический сервер
+11 автонаборов в headless Chrome. Каждый сам поднимает статический сервер
 на 8899 и сам его гасит — запускать можно по одному и в любом порядке.
 
 ```bash
@@ -126,8 +126,17 @@ node gps.mjs         # трекинг, ручной режим, GPX/CSV
 node counts.mjs      # счётчики данных
 node api.mjs         # 20/20  мост к Worker
 
-cd ../worker && node test/local.mjs   # 41/41  Worker и D1
+node bundle.mjs      # 26/26  собранный phone/www — то, что реально едет в APK
 ```
+
+`bundle.mjs` проверяет не исходники, а **собранный бандл**: каждый ресурс
+отдаётся без 4xx, все 15 маршрутов рендерятся, `classic.css` применился,
+service worker заглушен. Ошибка в `prepare.mjs` иначе проявилась бы только
+на телефоне — белым экраном. Перед запуском нужен `cd phone && npm run bundle`.
+
+`theme.mjs` специально следит за обещанием «бесплатно и без лимита»: если
+кто-то снова добавит счётчик сканов или кнопку Premium, тест упадёт.
+Раньше такой paywall в коде был — и противоречил лендингу.
 
 `theme.mjs` специально следит за обещанием «бесплатно и без лимита»: если
 кто-то снова добавит счётчик сканов или кнопку Premium, тест упадёт.
@@ -148,17 +157,88 @@ npx wrangler deploy
 
 Потом указать адрес Worker в `assets/js/api.js` (`WORKER_URL`).
 
-## Сборка для телефона
+## Сборка для телефона (Android APK)
 
-Обёртка в Capacitor. Только Android/iOS — **сборки под ПК нет по требованию**.
+Только телефоны. **Сборки под ПК нет по требованию.**
+
+Всё живёт в `phone/` — это отдельная обёртка Capacitor, которая не трогает
+корень репозитория. Приложение по-прежнему остаётся «просто файлами»: сборщика
+и минификатора нет, в APK едет ровно то, что лежит в корне.
 
 ```bash
-npm install @capacitor/core @capacitor/cli @capacitor/android
-npx cap init FORMA app.forma.fit --web-dir=.
-npx cap add android
-npx cap sync
-npx cap open android      # дальше Build → Build APK
+cd phone
+npm install
+npm run bundle   # собрать phone/www из исходников (без этого APK будет белым)
+npm run apk      # bundle + cap sync + gradle assembleDebug
 ```
+
+Готовый файл:
+
+```
+phone/android/app/build/outputs/apk/debug/app-debug.apk   (~3.8 МБ)
+```
+
+Поставить на телефон:
+
+```bash
+adb install -r phone/android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+Или скопировать `.apk` на телефон и открыть — нужно разрешить установку
+из неизвестных источников.
+
+### Что делает `prepare.mjs`
+
+Просто копирует в `phone/www` те файлы, на которые ссылается `index.html`,
+и делает две вещи, которых нельзя делать «в лоб»:
+
+1. **Выкидывает `sw.js`.** Внутри APK офлайн обеспечивает нативный слой,
+   а service worker на схеме `capacitor://` не проходит — только сыплет
+   ошибками в консоль. Регистрация в `core.js` при этом гасится, иначе был бы 404.
+2. **Проверяет, что все ссылки из `index.html` реально есть** в бандле.
+   Ошибка копирования иначе проявилась бы только на телефоне — белым экраном.
+
+### Разрешения
+
+Шаблон Capacitor добавляет только `INTERNET`. Приложению нужно больше,
+поэтому `phone/android/app/src/main/AndroidManifest.xml` дописан руками:
+
+| Разрешение | Зачем |
+|---|---|
+| `ACCESS_FINE_LOCATION` / `ACCESS_COARSE_LOCATION` | карта и трекер пробежки (`/activity`) |
+| `CAMERA` | ИИ-сканер еды — съёмка фото с камеры |
+| `POST_NOTIFICATIONS` | локальные пуши (на Android 13+ это runtime-разрешение) |
+
+Камера и GPS помечены `required="false"`, чтобы приложение ставилось и на
+устройства без них.
+
+### Если сборка падает
+
+- `Your project path contains non-ASCII characters` — AGP не любит кириллицу в пути.
+  Уже снято флагом `android.overridePathCheck=true` в `phone/android/gradle.properties`.
+- `Could not find com.android.tools.build:gradle` — нужен доступ в интернет:
+  Gradle сам скачивает свои зависимости при первом запуске.
+- Требуется JDK 17 и Android SDK (`ANDROID_HOME`). Проверено на Temurin 17.0.19
+  и SDK 34.
+
+### Про подпись
+
+`npm run apk` даёт **debug-сборку** — она подписана отладочным ключом, который
+Gradle создаёт на автомате. Устанавливается и работает, но для Google Play
+нужен свой ключ:
+
+```bash
+cd phone/android
+keytool -genkey -v -keystore forma-release.keystore \
+        -alias forma -keyalg RSA -keysize 2048 -validity 10000
+
+cp keystore.properties.example keystore.properties   # заполнить пароли
+cd .. && npm run apk:release
+```
+
+Результат — `app-release.apk` (~3 МБ, меньше debug за счёт оптимизации ресурсов).
+Ключ и `keystore.properties` в git не попадают: потерянный ключ делает
+невозможным обновление приложения в Play, поэтому храните его отдельно.
 
 ## Структура
 
@@ -171,7 +251,10 @@ assets/js/              13 модулей, без зависимостей
 assets/vendor/leaflet/  карта
 worker/                 Cloudflare Worker + D1
 site/                   маркетинговый сайт
-.verify/                10 автотестов
+phone/                  обёртка Capacitor → APK
+  prepare.mjs           сборка phone/www + проверка ссылок
+  capacitor.config.json appId app.forma.fit
+.verify/                11 автотестов
 PLAN.md                 план проекта и разбор конкурентов
 ```
 

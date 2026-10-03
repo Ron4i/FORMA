@@ -1,0 +1,21 @@
+{
+  "name": "forma-phone",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Обёртка FORMA для Android через Capacitor. Само приложение остаётся без сборки — эта папка нужна только для APK.",
+  "type": "module",
+  "scripts": {
+      "bundle": "node prepare.mjs",
+      "sync": "npm run bundle && cap sync android",
+    "apk": "npm run sync && cd android && call gradlew.bat assembleDebug",
+    "apk:release": "npm run sync && cd android && call gradlew.bat assembleRelease",
+    "open": "cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/core": "^6.2.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.2.0"
+  }
+}
