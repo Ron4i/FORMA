@@ -18,9 +18,10 @@ const ASSETS = [
   "./assets/css/classic.css",
   "./assets/vendor/leaflet/leaflet.css",
   "./assets/vendor/leaflet/leaflet.js",
-  "./assets/js/data.js",
-  "./assets/js/store.js",
-  "./assets/js/gps.js",
+  "./assets/js/api.js",
+    "./assets/js/data.js",
+    "./assets/js/store.js",
+    "./assets/js/gps.js",
   "./assets/js/ai.js",
   "./assets/js/push.js",
   "./assets/js/social.js",
@@ -30,8 +31,9 @@ const ASSETS = [
   "./assets/js/views_gps.js",
   "./assets/js/views_social.js",
   "./icons/icon-192.png",
-  "./icons/icon-512.png"
-];
+    "./icons/icon-512.png",
+    "./icons/icon-maskable.png"
+  ];
 
 // Ограничиваем кэш тайлов: удаляем самые старые записи.
 async function trimTileCache(cache) {
